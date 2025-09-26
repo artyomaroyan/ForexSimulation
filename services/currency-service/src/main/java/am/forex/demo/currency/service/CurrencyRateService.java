@@ -40,6 +40,7 @@ public class CurrencyRateService implements CurrencyRateUseCase {
         rates.put("USD", BigDecimal.valueOf(380.00));
         rates.put("EUR", BigDecimal.valueOf(439.50));
         rates.put("GBP", BigDecimal.valueOf(501.00));
+        rates.put("JPY", BigDecimal.valueOf(2.43));
     }
 
     @Override

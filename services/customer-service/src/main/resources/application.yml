@@ -1,3 +1,4 @@
+# customer-service application.yaml
 spring:
   application:
     name: customer-service
@@ -8,6 +9,7 @@ spring:
     password: postgres
     properties:
       show-sql: true
+
   flyway:
     url: jdbc:postgresql://localhost:5432/customer
     user: postgres

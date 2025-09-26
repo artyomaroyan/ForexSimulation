@@ -1,0 +1,121 @@
+# Build outputs and compiled classes
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files and directories
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.metadata/
+.recommenders/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+
+# Maven specific
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle specific
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+gradle.properties
+build.gradle.kts
+
+# Logs
+*.log
+logs/
+log/
+
+# Runtime and temporary files
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Test reports and coverage
+test-results/
+coverage/
+jacoco/
+*.exec
+
+# Spring Boot specific
+.spring-boot-devtools.properties
+application-local.properties
+application-local.yml
+
+# Docker related (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation and README files
+README*
+*.md
+docs/
+documentation/
+
+# Configuration files (be careful with these)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Cache directories
+.cache/
+node_modules/
+npm-debug.log*
+
+# Backup files
+*.bak
+*.backup
+
+# Package files
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*

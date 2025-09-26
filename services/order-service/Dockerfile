@@ -1,14 +1,10 @@
 # oredr-service Dockerfile
-FROM maven:3.9.11-eclipse-temurin-21 AS build
-WORKDIR /app
-
-COPY pom.xml .
-COPY target/order-service-0.0.1-SNAPSHOT.jar app.jar
-
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:23-jdk-alpine
 
 WORKDIR /app
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY target/order-service-0.0.1-SNAPSHOT.jar order-service-0.0.1-SNAPSHOT.jar
+
+ENTRYPOINT ["java", "-jar", "order-service-0.0.1-SNAPSHOT.jar"]
 
 EXPOSE 8080

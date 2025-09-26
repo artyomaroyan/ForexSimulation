@@ -1,21 +1,26 @@
+# order-service application.yaml
 spring:
   application:
     name: order-service
 
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/order
+    url: r2dbc:postgresql://db-order:5432/orders
     username: postgres
     password: postgres
     properties:
       show-sql: true
 
   flyway:
-    url: jdbc:postgresql://localhost:5432/order
+    url: jdbc:postgresql://db-order:5432/orders
     user: postgres
     password: postgres
     locations: classpath:db/migration
     driver-class-name: org.postgresql.Driver
-    default-schema: order
+    default-schema: orders
+
+  docker:
+    compose:
+      enabled: false
 
 server:
   port: 8082

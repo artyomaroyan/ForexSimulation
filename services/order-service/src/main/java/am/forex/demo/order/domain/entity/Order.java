@@ -20,7 +20,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(schema = "order", name = "order")
+@Table(schema = "orders", name = "orders")
 public class Order {
     @Id
     private UUID id;
