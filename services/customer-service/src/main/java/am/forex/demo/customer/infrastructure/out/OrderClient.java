@@ -5,6 +5,7 @@ import am.forex.demo.shared.dto.order.OrderRequest;
 import am.forex.demo.shared.dto.order.OrderResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -17,7 +18,7 @@ import java.util.UUID;
  * Time: 11:47:00
  */
 @Slf4j
-@Service
+@Component
 public class OrderClient implements OrderClientPort {
     private final WebClient webClient;
 

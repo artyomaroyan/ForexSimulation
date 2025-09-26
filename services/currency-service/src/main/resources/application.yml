@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: currency-service
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/currency
+    username: postgres
+    password: postgres
+    properties:
+      show-sql: true
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/currency
+    user: postgres
+    password: postgres
+    locations: classpath:db/migration
+    driver-class-name: org.postgresql.Driver
+    default-schema: currency
+
+server:
+  port: 8083
