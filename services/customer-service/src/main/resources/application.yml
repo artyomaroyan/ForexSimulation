@@ -4,14 +4,14 @@ spring:
     name: customer-service
 
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/customer
+    url: r2dbc:postgresql://localhost:5432/forex_simulation
     username: postgres
     password: postgres
     properties:
       show-sql: true
 
   flyway:
-    url: jdbc:postgresql://localhost:5432/customer
+    url: jdbc:postgresql://localhost:5432/forex_simulation
     user: postgres
     password: postgres
     locations: classpath:db/migration

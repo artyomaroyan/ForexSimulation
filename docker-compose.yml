@@ -1,77 +1,47 @@
-version: '3.9'
-
 services:
-  # Customer service
   customer-service:
     build: ./services/customer-service
     depends_on:
-      - db-customer
+      - forex_simulation
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://db-customer:5432/customer
+      SPRING_R2DBC_URL: r2dbc:postgresql://forex_db:5432/forex_simulation
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: postgres
     ports:
       - "8081:8080"
 
-  # Order service (fixed DB name to avoid reserved keyword)
   order-service:
     build: ./services/order-service
     depends_on:
-      - db-order
+      - forex_simulation
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://db-order:5432/orders
+      SPRING_R2DBC_URL: r2dbc:postgresql://forex_db:5432/forex_simulation
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: postgres
     ports:
       - "8082:8080"
 
-  # Currency service
   currency-service:
     build: ./services/currency-service
     depends_on:
-      - db-currency
+      - forex_simulation
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://db-currency:5432/currency
+      SPRING_R2DBC_URL: r2dbc:postgresql://forex_db:5432/forex_simulation
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: postgres
     ports:
       - "8083:8080"
 
-  # Customer DB
-  db-customer:
+  forex_simulation:
     image: postgres:17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: customer
+      POSTGRES_DB: forex_simulation
     volumes:
       - customer_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
-
-  # Order DB (renamed DB to avoid "order" keyword)
-  db-order:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: orders
-    volumes:
-      - order_data:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
-
-  # Currency DB
-  db-currency:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: currency
-    volumes:
-      - currency_data:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
+      - "5432:5432"
 
 volumes:
   customer_data:
