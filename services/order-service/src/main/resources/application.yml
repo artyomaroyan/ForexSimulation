@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: order-service
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/order
+    username: postgres
+    password: postgres
+    properties:
+      show-sql: true
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/order
+    user: postgres
+    password: postgres
+    locations: classpath:db/migration
+    driver-class-name: org.postgresql.Driver
+    default-schema: order
+
+server:
+  port: 8082

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: customer-service
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/customer
+    username: postgres
+    password: postgres
+    properties:
+      show-sql: true
+  flyway:
+    url: jdbc:postgresql://localhost:5432/customer
+    user: postgres
+    password: postgres
+    locations: classpath:db/migration
+    driver-class-name: org.postgresql.Driver
+    default-schema: customer
+
+server:
+  port: 8081
+
+webclient:
+  base-url:
+    order-url: http://localhost:8082
+    currency-url: http://localhost:8083
