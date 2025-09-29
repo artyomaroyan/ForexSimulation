@@ -3,11 +3,11 @@ package am.forex.demo.currency.api.controller;
 import am.forex.demo.currency.service.usecase.CurrencyRateUseCase;
 import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 /**
  * Author: Artyom Aroyan
@@ -26,7 +26,7 @@ public class RateController {
     }
 
     @GetMapping("/get/current")
-    Mono<CurrencyRateResponse> getCurrentRate(String from, String to) {
-        return currencyRateService.getCurrentRate(from, to);
+    Flux<BigDecimal> getCurrentRate(@RequestParam String from, @RequestParam String to) {
+        return currencyRateService.getCurrencyRates(from, to);
     }
 }

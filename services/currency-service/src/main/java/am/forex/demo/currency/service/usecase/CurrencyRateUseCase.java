@@ -1,7 +1,10 @@
 package am.forex.demo.currency.service.usecase;
 
 import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 /**
  * Author: Artyom Aroyan
@@ -10,5 +13,6 @@ import reactor.core.publisher.Mono;
  */
 public interface CurrencyRateUseCase {
     Mono<CurrencyRateResponse> simulateRate();
-    Mono<CurrencyRateResponse> getCurrentRate(String from, String to);
+    Flux<BigDecimal> getCurrencyRates(String from, String to);
+    Mono<BigDecimal> fetchCurrentRate(String from, String to);
 }

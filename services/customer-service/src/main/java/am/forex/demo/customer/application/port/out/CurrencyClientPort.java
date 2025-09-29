@@ -1,5 +1,7 @@
 package am.forex.demo.customer.application.port.out;
 
+import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -10,5 +12,6 @@ import java.math.BigDecimal;
  * Time: 21:22:22
  */
 public interface CurrencyClientPort {
-    Mono<BigDecimal> getCurrencyRate(String from, String to);
+    Mono<CurrencyRateResponse> simulateRates();
+    Flux<BigDecimal> getCurrencyRate(String from, String to);
 }
