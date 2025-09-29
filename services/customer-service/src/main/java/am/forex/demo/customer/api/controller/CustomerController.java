@@ -6,6 +6,7 @@ import am.forex.demo.customer.service.usecase.CustomerUseCase;
 import am.forex.demo.shared.dto.order.OrderRequest;
 import am.forex.demo.shared.dto.order.OrderResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -24,8 +25,10 @@ public class CustomerController {
     private final CustomerManagementUseCase customerManagementService;
 
     @GetMapping("/get/{id}")
-    Mono<CustomerResponse> getById(@PathVariable UUID id) {
-        return customerManagementService.getUserById(id);
+    Mono<ResponseEntity<CustomerResponse>> getCustomerById(@PathVariable UUID id) {
+        return customerManagementService.getUserById(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/orders/create/{id}")

@@ -24,12 +24,10 @@ public class OnboardingController {
     private final OnboardingUseCase customerService;
 
     @PostMapping("/create")
-    ResponseEntity<Mono<CustomerResponse>> createNewCustomer(@Valid @RequestBody CustomerRequest request){
-        try {
-            var result = customerService.createNewCustomer(request);
-            return ResponseEntity.ok(result);
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().build();
-        }
+    Mono<ResponseEntity<CustomerResponse>> createNewCustomer(@Valid @RequestBody CustomerRequest request){
+        return customerService.createNewCustomer(request)
+                .map(ResponseEntity::ok)
+                .onErrorResume(IllegalArgumentException.class,
+                        error -> Mono.just(ResponseEntity.badRequest().build()));
     }
 }

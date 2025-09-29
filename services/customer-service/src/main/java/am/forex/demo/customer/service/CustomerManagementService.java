@@ -24,13 +24,9 @@ public class CustomerManagementService implements CustomerManagementUseCase {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Mono<CustomerResponse> getUserById(UUID userId) {
-        return customerRepository.getCustomerById(userId)
-                .flatMap(result -> {
-                    if (result == null) {
-                        log.error("Customer not found for id {}", userId);
-                    }
-                    return Mono.just(result);
-                });
+    public Mono<CustomerResponse> getUserById(UUID id) {
+        return customerRepository.findById(id)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Customer with id " + id + " not found")))
+                .map(customerMapper::toResponse);
     }
 }

@@ -8,6 +8,7 @@ import am.forex.demo.customer.domain.repository.CustomerRepository;
 import am.forex.demo.customer.service.usecase.OnboardingUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 /**
@@ -22,13 +23,19 @@ public class OnboardingService implements OnboardingUseCase {
     private final CustomerRepository customerRepository;
 
     @Override
+    @Transactional
     public Mono<CustomerResponse> createNewCustomer(CustomerRequest request) {
-        return customerRepository.getCustomerByEmail(request.email())
-                .flatMap(existingUser -> Mono.error(() -> new IllegalArgumentException("Email already exists")))
-                .switchIfEmpty(Mono.defer(() -> {
-                    Customer newCustomer = customerMapper.toEntity(request);
-                    return customerRepository.save(newCustomer);
-                }))
-                .cast(CustomerResponse.class);
+        return customerRepository.findByEmail(request.email())
+                .hasElement()
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.error(new IllegalArgumentException("Customer with email " + request.email() + " already exists"));
+
+                    } else {
+                        Customer customer = customerMapper.toEntity(request);
+                        return customerRepository.save(customer)
+                                .map(customerMapper::toResponse);
+                    }
+                });
     }
 }

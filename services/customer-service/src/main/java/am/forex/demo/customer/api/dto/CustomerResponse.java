@@ -12,6 +12,5 @@ public record CustomerResponse(
         UUID id,
         String name,
         String email,
-        BigDecimal balance
-) {
+        BigDecimal balance) {
 }

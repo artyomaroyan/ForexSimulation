@@ -11,5 +11,5 @@ import java.util.UUID;
  * Time: 10:43:09
  */
 public interface CustomerManagementUseCase {
-    Mono<CustomerResponse> getUserById(UUID userId);
+    Mono<CustomerResponse> getUserById(UUID id);
 }

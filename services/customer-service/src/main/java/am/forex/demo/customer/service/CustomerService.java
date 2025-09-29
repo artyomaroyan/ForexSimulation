@@ -41,9 +41,9 @@ public class CustomerService implements CustomerUseCase {
     }
 
     private Mono<Boolean> checkCustomerBalance(UUID id, OrderRequest request) {
-        return customerRepository.getCustomerById(id)
+        return customerRepository.findById(id)
                 .flatMap(customer -> {
-                    if (customer.balance().compareTo(request.amount()) < 0) {
+                    if (customer.getBalance().compareTo(request.amount()) < 0) {
                         return Mono.error(() -> new IllegalStateException("Customer amount is out of range"));
                     }
                     return Mono.just(true);

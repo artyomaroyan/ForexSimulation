@@ -15,6 +15,5 @@ import java.util.UUID;
  */
 @Repository
 public interface CustomerRepository extends R2dbcRepository<Customer, UUID> {
-    Mono<CustomerResponse> getCustomerById(UUID id);
-    Mono<CustomerResponse> getCustomerByEmail(String email);
+    Mono<CustomerResponse> findByEmail(String email);
 }
