@@ -41,9 +41,9 @@ public class CustomerController {
                 .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.badRequest().build()));
     }
 
-    @GetMapping("/get/rates")
-    Flux<ResponseEntity<BigDecimal>> getCurrencyRates(@RequestParam String from, @RequestParam String to) {
-        return customerService.getCurrencyRates(from, to)
+    @GetMapping("/order/get/{orderId}")
+    Mono<ResponseEntity<OrderResponse>> getOrderById(@PathVariable UUID orderId) {
+        return customerService.getOrderById(orderId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -53,5 +53,12 @@ public class CustomerController {
         return customerService.simulateRates()
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().build()));
+    }
+
+    @GetMapping("/get/rates")
+    Flux<ResponseEntity<BigDecimal>> getCurrencyRates(@RequestParam String from, @RequestParam String to) {
+        return customerService.getCurrencyRates(from, to)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

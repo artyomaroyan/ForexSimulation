@@ -16,6 +16,7 @@ import java.util.UUID;
  */
 public interface CustomerUseCase {
     Mono<OrderResponse> createOrder(UUID id, OrderRequest request);
+    Mono<OrderResponse> getOrderById(UUID orderId);
     Mono<CurrencyRateResponse> simulateRates();
     Flux<BigDecimal> getCurrencyRates(String from, String to);
 }

@@ -31,15 +31,22 @@ public class CustomerService implements CustomerUseCase {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Mono<OrderResponse> createOrder(UUID id, OrderRequest request) {
-        return checkCustomerBalance(id, request)
+    public Mono<OrderResponse> createOrder(UUID customerId, OrderRequest request) {
+        return checkCustomerBalance(customerId, request)
                 .flatMap(hasEnoughBalance -> {
                     if (!hasEnoughBalance) {
                         return Mono.error(() -> new IllegalArgumentException("Invalid request"));
                     }
-                    return decreaseBalance(id, request)
+                    return decreaseBalance(customerId, request)
                             .flatMap(newBalance -> orderClient.createOrder(request));
                 });
+    }
+
+    @Override
+    public Mono<OrderResponse> getOrderById(UUID orderId) {
+        return orderClient.getOrder(orderId)
+                .doOnSuccess(response -> log.info("Order successfully retrieved: {}", response))
+                .doOnError(error -> log.error("Error during retrieving order", error));
     }
 
     @Override
