@@ -4,7 +4,6 @@ import am.forex.demo.currency.service.usecase.CurrencyRateUseCase;
 import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -26,7 +25,7 @@ public class RateController {
     }
 
     @GetMapping("/get/current")
-    Flux<BigDecimal> getCurrentRate(@RequestParam String from, @RequestParam String to) {
-        return currencyRateService.getCurrencyRates(from, to);
+    Mono<BigDecimal> getCurrentRate(@RequestParam String from, @RequestParam String to) {
+        return currencyRateService.fetchCurrentRate(from, to);
     }
 }

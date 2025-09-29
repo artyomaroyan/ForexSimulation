@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -34,10 +33,10 @@ public class CurrencyClient implements CurrencyClientPort {
     }
 
     @Override
-    public Flux<BigDecimal> getCurrencyRate(String from, String to) {
+    public Mono<BigDecimal> getCurrencyRate(String from, String to) {
         return webClient.get()
                 .uri("/api/v1/rates/get/current")
                 .retrieve()
-                .bodyToFlux(BigDecimal.class);
+                .bodyToMono(BigDecimal.class);
     }
 }

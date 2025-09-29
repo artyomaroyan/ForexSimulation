@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,15 +58,6 @@ public class CurrencyRateService implements CurrencyRateUseCase {
                 })
                 .then()
                 .thenReturn(new CurrencyRateResponse(new HashMap<>(rates), LocalDateTime.now()));
-    }
-
-    @Override
-    public Flux<BigDecimal> getCurrencyRates(String from, String to) {
-        return Flux.interval(Duration.ofSeconds(1))
-                .flatMap(tick -> fetchCurrentRate(from, to))
-                .doOnSubscribe(subscription -> log.info("Starting currency rates stream for {} to {}", from, to))
-                .doOnNext(rate -> log.debug("Current rate {} for {} is {}", rate, from, to))
-                .doOnError(error -> log.error("Error during streaming currency rates", error));
     }
 
     @Override
