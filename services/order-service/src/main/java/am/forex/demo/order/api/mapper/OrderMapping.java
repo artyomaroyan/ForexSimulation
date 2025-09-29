@@ -21,7 +21,6 @@ public class OrderMapping {
     public Order toEntity(OrderRequest request) {
         Order order = new Order();
         order.setId(UUID.randomUUID());
-        order.setCustomerId(request.customerId());
         order.setCurrencyFrom(request.currencyFrom());
         order.setCurrencyTo(request.currencyTo());
         order.setAmount(request.amount());
