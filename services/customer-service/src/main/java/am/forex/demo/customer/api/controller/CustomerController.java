@@ -5,11 +5,14 @@ import am.forex.demo.customer.service.usecase.CustomerManagementUseCase;
 import am.forex.demo.customer.service.usecase.CustomerUseCase;
 import am.forex.demo.shared.dto.order.OrderRequest;
 import am.forex.demo.shared.dto.order.OrderResponse;
+import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -26,13 +29,29 @@ public class CustomerController {
 
     @GetMapping("/get/{id}")
     Mono<ResponseEntity<CustomerResponse>> getCustomerById(@PathVariable UUID id) {
-        return customerManagementService.getUserById(id)
+        return customerManagementService.getCustomerById(id)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/orders/create/{id}")
-    Mono<OrderResponse> createOrder(@PathVariable UUID id, @RequestBody OrderRequest request) {
-        return customerService.createOrder(id, request);
+    Mono<ResponseEntity<OrderResponse>> createOrder(@PathVariable UUID id, @RequestBody OrderRequest request) {
+        return customerService.createOrder(id, request)
+                .map(ResponseEntity::ok)
+                .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.badRequest().build()));
+    }
+
+    @GetMapping("/get/rates")
+    Flux<ResponseEntity<BigDecimal>> getCurrencyRates(@RequestParam String from, @RequestParam String to) {
+        return customerService.getCurrencyRates(from, to)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/rates/simulate")
+    Mono<ResponseEntity<CurrencyRateResponse>> simulateRatesChange() {
+        return customerService.simulateRates()
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().build()));
     }
 }

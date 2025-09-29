@@ -7,9 +7,11 @@ import am.forex.demo.customer.infrastructure.out.OrderClient;
 import am.forex.demo.customer.service.usecase.CustomerUseCase;
 import am.forex.demo.shared.dto.order.OrderRequest;
 import am.forex.demo.shared.dto.order.OrderResponse;
+import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -38,6 +40,22 @@ public class CustomerService implements CustomerUseCase {
                     return decreaseBalance(id, request)
                             .flatMap(newBalance -> orderClient.createOrder(request));
                 });
+    }
+
+    @Override
+    public Mono<CurrencyRateResponse> simulateRates() {
+        return currencyClient.simulateRates()
+                .doOnSuccess(response -> log.info("Rates successfully simulated: {}", response))
+                .doOnError(error -> log.error("Error during simulating rates", error));
+    }
+
+    @Override
+    public Flux<BigDecimal> getCurrencyRates(String from, String to) {
+        return currencyClient.getCurrencyRate(from, to)
+                .repeat()
+                .doOnSubscribe(subscription -> log.info("starting currency rates stream for {} to {}", from, to))
+                .doOnNext(rate -> log.info("Streaming currency rate: {} to {} = {}", from, to, rate))
+                .doOnError(error -> log.error("Error during streaming currency rates", error));
     }
 
     private Mono<Boolean> checkCustomerBalance(UUID id, OrderRequest request) {
