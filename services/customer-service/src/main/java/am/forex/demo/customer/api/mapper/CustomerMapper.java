@@ -3,8 +3,10 @@ package am.forex.demo.customer.api.mapper;
 import am.forex.demo.customer.api.dto.CustomerRequest;
 import am.forex.demo.customer.domain.entity.Customer;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Author: Artyom Aroyan
@@ -14,9 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CustomerMapper {
-    private final ModelMapper modelMapper;
 
     public Customer toEntity(CustomerRequest customerRequest) {
-        return modelMapper.map(customerRequest, Customer.class);
+        Customer customer = new Customer();
+        customer.setId(UUID.randomUUID());
+        customer.setName(customerRequest.name());
+        customer.setEmail(customerRequest.email());
+        customer.setBalance(BigDecimal.ZERO);
+        return customer;
     }
 }

@@ -3,6 +3,7 @@ package am.forex.demo.customer.api.controller;
 import am.forex.demo.customer.api.dto.CustomerRequest;
 import am.forex.demo.customer.api.dto.CustomerResponse;
 import am.forex.demo.customer.service.usecase.OnboardingUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,11 +24,12 @@ public class OnboardingController {
     private final OnboardingUseCase customerService;
 
     @PostMapping("/create")
-    ResponseEntity<Mono<CustomerResponse>> createNewCustomer(@RequestBody CustomerRequest request){
-        var result = customerService.createNewCustomer(request);
-        if (result == null) {
+    ResponseEntity<Mono<CustomerResponse>> createNewCustomer(@Valid @RequestBody CustomerRequest request){
+        try {
+            var result = customerService.createNewCustomer(request);
+            return ResponseEntity.ok(result);
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(result);
     }
 }
