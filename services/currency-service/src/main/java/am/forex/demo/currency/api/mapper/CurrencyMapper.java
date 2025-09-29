@@ -3,8 +3,10 @@ package am.forex.demo.currency.api.mapper;
 import am.forex.demo.currency.domain.entity.CurrencyRate;
 import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Author: Artyom Aroyan
@@ -14,9 +16,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CurrencyMapper {
-    private final ModelMapper modelMapper;
 
     public CurrencyRateResponse toResponse(CurrencyRate currencyRate) {
-        return modelMapper.map(currencyRate, CurrencyRateResponse.class);
+        Map<String, BigDecimal> rate = Map.of(
+                  currencyRate.getCurrencyFrom() + " - " + currencyRate.getCurrencyTo(),
+                    currencyRate.getRate()
+        );
+        return new CurrencyRateResponse(rate, currencyRate.getLastUpdated());
     }
 }

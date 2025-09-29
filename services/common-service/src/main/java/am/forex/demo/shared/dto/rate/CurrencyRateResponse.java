@@ -11,6 +11,5 @@ import java.util.Map;
  */
 public record CurrencyRateResponse(
         Map<String, BigDecimal> rates,
-        LocalDateTime lastUpdated
-) {
+        LocalDateTime lastUpdated) {
 }
