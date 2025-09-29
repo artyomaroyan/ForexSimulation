@@ -15,6 +15,5 @@ public record OrderResponse(
         String currencyTo,
         BigDecimal amount,
         BigDecimal rate,
-        String status
-) {
+        String status) {
 }

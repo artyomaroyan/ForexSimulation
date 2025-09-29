@@ -1,11 +1,13 @@
 package am.forex.demo.order.api.mapper;
 
 import am.forex.demo.order.domain.entity.Order;
+import am.forex.demo.order.domain.enums.Status;
 import am.forex.demo.shared.dto.order.OrderRequest;
 import am.forex.demo.shared.dto.order.OrderResponse;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 /**
  * Author: Artyom Aroyan
@@ -15,13 +17,28 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderMapping {
-    private final ModelMapper modelMapper;
 
     public Order toEntity(OrderRequest request) {
-        return modelMapper.map(request, Order.class);
+        Order order = new Order();
+        order.setId(UUID.randomUUID());
+        order.setCustomerId(request.customerId());
+        order.setCurrencyFrom(request.currencyFrom());
+        order.setCurrencyTo(request.currencyTo());
+        order.setAmount(request.amount());
+        order.setRate(request.rate());
+        order.setStatus(Status.NEW);
+        return order;
     }
 
     public OrderResponse toResponse(Order order) {
-        return modelMapper.map(order, OrderResponse.class);
+        return new OrderResponse(
+                order.getId(),
+                order.getCustomerId(),
+                order.getCurrencyFrom(),
+                order.getCurrencyTo(),
+                order.getAmount(),
+                order.getRate(),
+                order.getStatus().name()
+        );
     }
 }

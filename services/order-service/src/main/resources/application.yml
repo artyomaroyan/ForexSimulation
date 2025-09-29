@@ -4,23 +4,19 @@ spring:
     name: order-service
 
   r2dbc:
-    url: r2dbc:postgresql://db-order:5432/forex_simulation
+    url: r2dbc:postgresql://localhost:5432/forex_simulation
     username: postgres
     password: postgres
     properties:
       show-sql: true
 
   flyway:
-    url: jdbc:postgresql://db-order:5432/forex_simulation
+    url: jdbc:postgresql://localhost:5432/forex_simulation
     user: postgres
     password: postgres
     locations: classpath:db/migration
     driver-class-name: org.postgresql.Driver
     default-schema: orders
-
-  docker:
-    compose:
-      enabled: false
 
 server:
   port: 8082
