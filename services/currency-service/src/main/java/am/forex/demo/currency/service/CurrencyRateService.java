@@ -84,7 +84,7 @@ public class CurrencyRateService implements CurrencyRateUseCase {
         } else if (rates.containsKey(from) && rates.containsKey(to)) {
             BigDecimal fromRate = rates.get(from);
             BigDecimal toRate = rates.get(to);
-            return toRate.divide(fromRate, SCALE, ROUNDING_MODE);
+            return fromRate.divide(toRate, SCALE, ROUNDING_MODE);
         }
         throw new IllegalArgumentException("Unsupported currency pair: " + from + " to " + to);
     }
