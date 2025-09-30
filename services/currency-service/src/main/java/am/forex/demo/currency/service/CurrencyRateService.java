@@ -26,8 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 public class CurrencyRateService implements CurrencyRateUseCase {
+    private static final int SCALE = 4;
     private static final Random RANDOM = new Random();
     private static final String BASE_CURRENCY = "AMD";
+    private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_EVEN;
     private static final BigDecimal MIN_CHANGE_PERCENT = BigDecimal.valueOf(0.1);
     private static final BigDecimal MAX_CHANGE_PERCENT = BigDecimal.valueOf(0.5);
 
@@ -61,9 +63,14 @@ public class CurrencyRateService implements CurrencyRateUseCase {
     }
 
     @Override
-    public Mono<BigDecimal> fetchCurrentRate(String from, String to) {
-        return Mono.fromCallable(() -> calculateRate(from, to))
-                .doOnSuccess(rate -> log.info("Fetched current rate from {} to {}: {}", from, to, rate))
+    public Mono<BigDecimal> fetchCurrentRate(String from, String to, BigDecimal amount) {
+        return Mono.fromCallable(() -> {
+                    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                        throw new IllegalArgumentException("Amount must be greater than zero");
+                    }
+                    return calculateRate(from, to).multiply(amount);
+                })
+                .doOnSuccess(rate -> log.info("Converted {} {} to {} {}", amount, from, rate, to))
                 .doOnError(error -> log.error("Error fetching current rate from {} to {}", from, to, error));
     }
 
@@ -72,12 +79,12 @@ public class CurrencyRateService implements CurrencyRateUseCase {
             return rates.get(to);
 
         } else if (BASE_CURRENCY.equals(to) && rates.containsKey(from)) {
-            return BigDecimal.ONE.divide(rates.get(from), 4, RoundingMode.HALF_EVEN);
+            return rates.get(from);
 
         } else if (rates.containsKey(from) && rates.containsKey(to)) {
             BigDecimal fromRate = rates.get(from);
             BigDecimal toRate = rates.get(to);
-            return toRate.divide(fromRate, 4, RoundingMode.HALF_EVEN);
+            return toRate.divide(fromRate, SCALE, ROUNDING_MODE);
         }
         throw new IllegalArgumentException("Unsupported currency pair: " + from + " to " + to);
     }
@@ -85,6 +92,6 @@ public class CurrencyRateService implements CurrencyRateUseCase {
     private BigDecimal calculateNewRate(BigDecimal currentRate) {
         double changePercent = (RANDOM.nextDouble() - MIN_CHANGE_PERCENT.doubleValue()) * MAX_CHANGE_PERCENT.doubleValue();
         BigDecimal newRate = currentRate.multiply(BigDecimal.valueOf(changePercent));
-        return currentRate.add(newRate).setScale(4, RoundingMode.HALF_EVEN);
+        return currentRate.add(newRate).setScale(SCALE, ROUNDING_MODE);
     }
 }

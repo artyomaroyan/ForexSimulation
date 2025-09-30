@@ -25,7 +25,7 @@ public class RateController {
     }
 
     @GetMapping("/get/current")
-    Mono<BigDecimal> getCurrentRate(@RequestParam String from, @RequestParam String to) {
-        return currencyRateService.fetchCurrentRate(from, to);
+    Mono<BigDecimal> getCurrentRate(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal amount) {
+        return currencyRateService.fetchCurrentRate(from, to, amount);
     }
 }
