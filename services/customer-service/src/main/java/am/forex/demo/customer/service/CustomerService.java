@@ -11,7 +11,6 @@ import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -57,9 +56,8 @@ public class CustomerService implements CustomerUseCase {
     }
 
     @Override
-    public Flux<BigDecimal> getCurrencyRates(String from, String to) {
-        return currencyClient.getCurrencyRate(from, to)
-                .repeat()
+    public Mono<BigDecimal> getCurrencyRates(String from, String to, BigDecimal amount) {
+        return currencyClient.getCurrencyRate(from, to, amount)
                 .doOnSubscribe(subscription -> log.info("starting currency rates stream for {} to {}", from, to))
                 .doOnNext(rate -> log.info("Streaming currency rate: {} to {} = {}", from, to, rate))
                 .doOnError(error -> log.error("Error during streaming currency rates", error));
@@ -81,7 +79,7 @@ public class CustomerService implements CustomerUseCase {
         }
 
         return customerRepository.findById(id)
-                .flatMap(customer -> currencyClient.getCurrencyRate(order.currencyFrom(), order.currencyTo())
+                .flatMap(customer -> currencyClient.getCurrencyRate(order.currencyFrom(), order.currencyTo(), order.amount())
                         .flatMap(rate -> {
                             if (rate == null || rate.compareTo(BigDecimal.ZERO) <= 0) {
                                 return Mono.error(new IllegalStateException("Invalid exchange rate"));
@@ -93,7 +91,7 @@ public class CustomerService implements CustomerUseCase {
                             if (order.currencyFrom().equals("AMD")) {
                                 amountInDram = Mono.just(amountFrom);
                             } else {
-                                amountInDram = currencyClient.getCurrencyRate(order.currencyFrom(), "AMD")
+                                amountInDram = currencyClient.getCurrencyRate(order.currencyFrom(), "AMD", amountFrom)
                                         .flatMap(fromToAmdRate -> {
                                             if (fromToAmdRate == null || fromToAmdRate.compareTo(BigDecimal.ZERO) <= 0) {
                                                 return Mono.error(new IllegalStateException("Invalid AMD conversion rate"));

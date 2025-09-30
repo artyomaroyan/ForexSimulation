@@ -33,9 +33,14 @@ public class CurrencyClient implements CurrencyClientPort {
     }
 
     @Override
-    public Mono<BigDecimal> getCurrencyRate(String from, String to) {
+    public Mono<BigDecimal> getCurrencyRate(String from, String to, BigDecimal amount) {
         return webClient.get()
-                .uri("/api/v1/rates/get/current")
+                .uri(uribuilder -> uribuilder
+                        .path("/api/v1/rates/get/current")
+                        .queryParam("from", from)
+                        .queryParam("to", to)
+                        .queryParam("amount", amount)
+                        .build())
                 .retrieve()
                 .bodyToMono(BigDecimal.class);
     }

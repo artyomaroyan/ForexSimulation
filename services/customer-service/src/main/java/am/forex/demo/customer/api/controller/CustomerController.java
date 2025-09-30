@@ -9,7 +9,6 @@ import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -56,8 +55,8 @@ public class CustomerController {
     }
 
     @GetMapping("/get/rates")
-    Flux<ResponseEntity<BigDecimal>> getCurrencyRates(@RequestParam String from, @RequestParam String to) {
-        return customerService.getCurrencyRates(from, to)
+    Mono<ResponseEntity<BigDecimal>> getCurrencyRates(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal amount) {
+        return customerService.getCurrencyRates(from, to, amount)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

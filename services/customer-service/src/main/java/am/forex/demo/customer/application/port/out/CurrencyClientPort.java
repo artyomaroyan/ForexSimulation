@@ -12,5 +12,5 @@ import java.math.BigDecimal;
  */
 public interface CurrencyClientPort {
     Mono<CurrencyRateResponse> simulateRates();
-    Mono<BigDecimal> getCurrencyRate(String from, String to);
+    Mono<BigDecimal> getCurrencyRate(String from, String to, BigDecimal amount);
 }
