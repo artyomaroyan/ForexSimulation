@@ -12,6 +12,6 @@ import java.util.UUID;
  * Time: 11:37:59
  */
 public interface OrderClientPort {
-    Mono<OrderResponse> createOrder(OrderRequest request);
+    Mono<OrderResponse> createOrder(UUID customerId, OrderRequest request);
     Mono<OrderResponse> getOrder(UUID orderId);
 }

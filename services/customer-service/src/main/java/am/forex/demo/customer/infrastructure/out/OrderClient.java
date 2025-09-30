@@ -6,7 +6,6 @@ import am.forex.demo.shared.dto.order.OrderResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -27,9 +26,9 @@ public class OrderClient implements OrderClientPort {
     }
 
     @Override
-    public Mono<OrderResponse> createOrder(OrderRequest request) {
+    public Mono<OrderResponse> createOrder(UUID customerId, OrderRequest request) {
         return webClient.post()
-                .uri("/api/v1/orders/create")
+                .uri("/api/v1/orders/create/{customerId}", customerId)
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(OrderResponse.class);
@@ -38,7 +37,7 @@ public class OrderClient implements OrderClientPort {
     @Override
     public Mono<OrderResponse> getOrder(UUID orderId) {
         return webClient.get()
-                .uri("/api/v1/orders/get/{orderId}")
+                .uri("/api/v1/orders/get/{orderId}", orderId)
                 .retrieve()
                 .bodyToMono(OrderResponse.class);
     }

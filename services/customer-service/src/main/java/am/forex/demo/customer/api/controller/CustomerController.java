@@ -33,9 +33,9 @@ public class CustomerController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/orders/create/{id}")
-    Mono<ResponseEntity<OrderResponse>> createOrder(@PathVariable UUID id, @RequestBody OrderRequest request) {
-        return customerService.createOrder(id, request)
+    @PostMapping("/orders/create/{customerId}")
+    Mono<ResponseEntity<OrderResponse>> createOrder(@PathVariable UUID customerId, @RequestBody OrderRequest request) {
+        return customerService.createOrder(customerId, request)
                 .map(ResponseEntity::ok)
                 .onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.badRequest().build()));
     }

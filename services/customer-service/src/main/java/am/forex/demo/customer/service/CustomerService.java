@@ -11,6 +11,7 @@ import am.forex.demo.shared.dto.rate.CurrencyRateResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -30,15 +31,27 @@ public class CustomerService implements CustomerUseCase {
     private final CustomerRepository customerRepository;
 
     @Override
+    @Transactional
     public Mono<OrderResponse> createOrder(UUID customerId, OrderRequest request) {
-        return checkCustomerBalance(customerId, request)
-                .flatMap(hasEnoughBalance -> {
-                    if (!hasEnoughBalance) {
-                        return Mono.error(() -> new IllegalArgumentException("Invalid request"));
-                    }
-                    return decreaseBalance(customerId, request)
-                            .flatMap(newBalance -> orderClient.createOrder(request));
-                });
+        return validateOrderRequest(request)
+                .then(Mono.defer(() -> currencyClient.getCurrencyRate(
+                        request.currencyFrom(),
+                        request.currencyTo(),
+                        request.amount())))
+                .flatMap(rate -> {
+                    OrderRequest newRequest = new OrderRequest(
+                            request.currencyFrom(),
+                            request.currencyTo(),
+                            request.amount(),
+                            rate
+                    );
+
+                    return checkCustomerBalance(customerId, newRequest)
+                            .then(Mono.defer(() -> decreaseBalance(customerId, newRequest)))
+                            .then(Mono.defer(() -> orderClient.createOrder(customerId, newRequest)));
+                })
+                .doOnSuccess(response -> log.info("order created: {}", response))
+                .doOnError(error -> log.error("error during order creation: {}", error.getMessage()));
     }
 
     @Override
@@ -49,6 +62,7 @@ public class CustomerService implements CustomerUseCase {
     }
 
     @Override
+    @Transactional
     public Mono<CurrencyRateResponse> simulateRates() {
         return currencyClient.simulateRates()
                 .doOnSuccess(response -> log.info("Rates successfully simulated: {}", response))
@@ -63,50 +77,57 @@ public class CustomerService implements CustomerUseCase {
                 .doOnError(error -> log.error("Error during streaming currency rates", error));
     }
 
+    private Mono<Boolean> validateOrderRequest(OrderRequest request) {
+        if (request == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            return Mono.error(() -> new IllegalArgumentException("Amount must be greater than zero"));
+        }
+
+        if (request.currencyFrom().equals(request.currencyTo())) {
+            return Mono.error(() -> new IllegalArgumentException("Currencies must be different"));
+        }
+        return Mono.just(true);
+    }
+
     private Mono<Boolean> checkCustomerBalance(UUID id, OrderRequest request) {
         return customerRepository.findById(id)
-                .flatMap(customer -> {
-                    if (customer.getBalance().compareTo(request.amount()) < 0) {
-                        return Mono.error(() -> new IllegalStateException("Customer amount is out of range"));
-                    }
-                    return Mono.just(true);
-                });
+                .flatMap(customer -> convertToDram(request.currencyFrom(), request.amount())
+                        .flatMap(amountInDram -> {
+                            log.info("Customer balance, {} amount {}", customer.getBalance(), amountInDram);
+                            if (customer.getBalance().compareTo(amountInDram) < 0) {
+                                return Mono.error(() -> new IllegalStateException("Insufficient balance"));
+                            } else {
+                                return Mono.just(true);
+                            }
+                        }));
     }
 
     private Mono<BigDecimal> decreaseBalance(UUID id, OrderRequest order) {
-        if (order.currencyFrom().equals(order.currencyTo())) {
-            return Mono.error(new IllegalStateException("Invalid request"));
-        }
-
         return customerRepository.findById(id)
-                .flatMap(customer -> currencyClient.getCurrencyRate(order.currencyFrom(), order.currencyTo(), order.amount())
-                        .flatMap(rate -> {
-                            if (rate == null || rate.compareTo(BigDecimal.ZERO) <= 0) {
-                                return Mono.error(new IllegalStateException("Invalid exchange rate"));
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Customer not found")))
+                .flatMap(customer -> convertToDram(order.currencyFrom(), order.amount())
+                        .flatMap(amountInDram -> {
+
+                            BigDecimal newBalance = customer.getBalance().subtract(amountInDram);
+                            if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                                return Mono.error(() -> new IllegalStateException("Insufficient balance"));
                             }
 
-                            BigDecimal amountFrom = order.amount();
-                            Mono<BigDecimal> amountInDram;
+                            customer.setBalance(newBalance);
+                            return customerRepository.save(customer)
+                                    .map(Customer::getBalance);
+                        }));
+    }
 
-                            if (order.currencyFrom().equals("AMD")) {
-                                amountInDram = Mono.just(amountFrom);
-                            } else {
-                                amountInDram = currencyClient.getCurrencyRate(order.currencyFrom(), "AMD", amountFrom)
-                                        .flatMap(fromToAmdRate -> {
-                                            if (fromToAmdRate == null || fromToAmdRate.compareTo(BigDecimal.ZERO) <= 0) {
-                                                return Mono.error(new IllegalStateException("Invalid AMD conversion rate"));
-                                            }
-                                            return Mono.just(amountFrom.multiply(fromToAmdRate));
-                                        });
-                            }
-
-                            return amountInDram.flatMap(dram -> {
-                                customer.setBalance(customer.getBalance().subtract(dram));
-
-                                return customerRepository.save(customer)
-                                        .map(Customer::getBalance);
-                            });
-                        })
-                );
+    private Mono<BigDecimal> convertToDram(String from, BigDecimal amount) {
+        if (from.equals("AMD")) {
+            return Mono.just(amount);
+        }
+        return currencyClient.getCurrencyRate(from, "AMD", amount)
+                .flatMap(rate -> {
+                    if (rate == null || rate.compareTo(BigDecimal.ZERO) <= 0) {
+                        return Mono.error(() -> new IllegalStateException("Invalid Dram convertion rate"));
+                    }
+                    return Mono.just(amount.multiply(rate));
+                });
     }
 }
