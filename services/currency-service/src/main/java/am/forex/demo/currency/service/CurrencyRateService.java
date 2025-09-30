@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +46,7 @@ public class CurrencyRateService implements CurrencyRateUseCase {
     }
 
     @Override
+    @Transactional
     public Mono<CurrencyRateResponse> simulateRate() {
         rates.replaceAll((currency, currencyRate) -> calculateNewRate(currencyRate));
 
@@ -68,7 +70,7 @@ public class CurrencyRateService implements CurrencyRateUseCase {
                     if (amount.compareTo(BigDecimal.ZERO) <= 0) {
                         throw new IllegalArgumentException("Amount must be greater than zero");
                     }
-                    return calculateRate(from, to).multiply(amount);
+                    return calculateRate(from, to);
                 })
                 .doOnSuccess(rate -> log.info("Converted {} {} to {} {}", amount, from, rate, to))
                 .doOnError(error -> log.error("Error fetching current rate from {} to {}", from, to, error));
