@@ -9,7 +9,10 @@ import am.forex.demo.shared.dto.order.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 /**
  * Author: Artyom Aroyan
@@ -24,15 +27,12 @@ public class CreateOrderService implements OrderCreationUseCase {
     private final OrderRepository orderRepository;
 
     @Override
-    public Mono<OrderResponse> createOrder(OrderRequest request) {
-        Order newOrder = orderMapping.toEntity(request);
+    @Transactional
+    public Mono<OrderResponse> createOrder(UUID customerId, OrderRequest request) {
+        Order newOrder = orderMapping.toEntity(customerId, request);
         return orderRepository.save(newOrder)
-                .flatMap(order -> {
-                    if (order == null) {
-                        log.error("Cannot create order because order is null");
-                    }
-                    var response = orderMapping.toResponse(order);
-                    return Mono.just(response);
-                });
+                .map(orderMapping::toResponse)
+                .doOnSuccess(response -> log.info("Order successfully created: {}", response))
+                .doOnError(error -> log.error("Failed to create order", error));
     }
 }

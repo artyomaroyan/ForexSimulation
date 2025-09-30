@@ -1,5 +1,6 @@
 package am.forex.demo.order.service;
 
+import am.forex.demo.order.api.mapper.OrderMapping;
 import am.forex.demo.order.domain.repository.OrderRepository;
 import am.forex.demo.order.service.usecase.OrderManagementUseCase;
 import am.forex.demo.shared.dto.order.OrderResponse;
@@ -19,16 +20,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OrderManagementService implements OrderManagementUseCase {
+    private final OrderMapping orderMapping;
     private final OrderRepository orderRepository;
 
     @Override
     public Mono<OrderResponse> getOrderById(UUID id) {
-        return orderRepository.getOrderById(id)
-                .flatMap(order -> {
-                    if (order == null) {
-                        log.error("Order not found");
-                    }
-                    return Mono.just(order);
-                });
+        return orderRepository.findById(id)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Order not found with id: " + id)))
+                .map(orderMapping::toResponse);
     }
 }

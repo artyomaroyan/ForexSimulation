@@ -23,17 +23,17 @@ public class OrderController {
     private final OrderCreationUseCase orderCreationService;
     private final OrderManagementUseCase orderManagementService;
 
-    @PostMapping("/create")
-    ResponseEntity<Mono<OrderResponse>> createOrder(OrderRequest request) {
-        var result = orderCreationService.createOrder(request);
-        if (result == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(result);
+    @PostMapping("/create/{customerId}")
+    Mono<ResponseEntity<OrderResponse>> createOrder(@PathVariable UUID customerId, @RequestBody OrderRequest request) {
+        return orderCreationService.createOrder(customerId, request)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().build()));
     }
 
     @GetMapping("/get/{id}")
-    Mono<OrderResponse> getOrderById(@PathVariable UUID id) {
-        return orderManagementService.getOrderById(id);
+    Mono<ResponseEntity<OrderResponse>> getOrderById(@PathVariable UUID id) {
+        return orderManagementService.getOrderById(id)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> Mono.just(ResponseEntity.notFound().build()));
     }
 }

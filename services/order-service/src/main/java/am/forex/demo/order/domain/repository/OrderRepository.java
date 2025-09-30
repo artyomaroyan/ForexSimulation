@@ -1,10 +1,8 @@
 package am.forex.demo.order.domain.repository;
 
 import am.forex.demo.order.domain.entity.Order;
-import am.forex.demo.shared.dto.order.OrderResponse;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -15,5 +13,4 @@ import java.util.UUID;
  */
 @Repository
 public interface OrderRepository extends R2dbcRepository<Order, UUID> {
-    Mono<OrderResponse> getOrderById(UUID id);
 }
